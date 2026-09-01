@@ -1,0 +1,7 @@
+apiVersion: pipelines.kubeflow.org/v2beta1
+kind: Pipeline
+metadata:
+  name: sleep-demo
+  namespace: pipeline-demo
+spec:
+  displayName: sleep-demo
