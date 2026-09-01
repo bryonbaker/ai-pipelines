@@ -17,8 +17,15 @@ the DSPA controller sets the ownerReference and `pipeline-id` label but does NOT
 `status.conditions`. The PipelineVersion is fully functional — it just lacks a READY
 status on the CR. The run-trigger Job checks for the `pipeline-id` label instead.
 
-The DSPA has `podToPodTLS: true`, so all in-cluster API calls use HTTPS with the CA
-from the `dsp-trusted-ca-pipelines-definition` ConfigMap.
+The DSPA has `podToPodTLS: true`, so all in-cluster API calls use HTTPS. The API
+server's TLS cert is signed by the OpenShift service serving signer, so the Job
+mounts the `openshift-service-ca.crt` ConfigMap (not `dsp-trusted-ca-pipelines-definition`,
+which contains a different CA). The Job connects to port 8888 (direct API, no OAuth)
+using the FQDN `ds-pipeline-pipelines-definition.pipeline-demo.svc` to match the
+cert's SANs.
+
+A NetworkPolicy restricts port 8888 access to pods with specific labels. The Job's
+pod template includes `opendatahub.io/workbenches: "true"` to pass this policy.
 
 ## Step 1: Deploy the Pipeline Definition
 
