@@ -1,0 +1,1124 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: sleep-pipeline-template-
+  annotations:
+    pipelines.kubeflow.org/run_name: demo-run
+    workflows.argoproj.io/pod-name-format: v2
+  resourceVersion: '52080449'
+  name: sleep-pipeline-template-4jc66
+  uid: 0c9de54e-7979-4c75-a84f-2f705382cdd8
+  creationTimestamp: '2026-09-01T00:26:05Z'
+  generation: 18
+  managedFields:
+    - apiVersion: argoproj.io/v1alpha1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            'f:workflows.argoproj.io/pod-name-format': {}
+          'f:labels':
+            'f:workflows.argoproj.io/completed': {}
+            'f:workflows.argoproj.io/phase': {}
+        'f:status': {}
+      manager: workflow-controller
+      operation: Update
+      time: '2026-09-01T00:28:45Z'
+    - apiVersion: argoproj.io/v1alpha1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:pipelines.kubeflow.org/run_name': {}
+          'f:generateName': {}
+          'f:labels':
+            .: {}
+            'f:pipeline/persistedFinalState': {}
+            'f:pipeline/runid': {}
+        'f:spec': {}
+      manager: apiserver
+      operation: Update
+      time: '2026-09-01T00:28:46Z'
+  namespace: pipeline-demo
+  labels:
+    pipeline/persistedFinalState: 'true'
+    pipeline/runid: 1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e
+    workflows.argoproj.io/completed: 'true'
+    workflows.argoproj.io/phase: Succeeded
+spec:
+  arguments:
+    parameters:
+      - name: components-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2
+        value: '{"executorLabel":"exec-data-prep"}'
+      - name: implementations-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2
+        value: '{"args":["sleep 10"],"command":["sh","-c"],"image":"registry.redhat.io/ubi9/ubi-minimal:latest"}'
+      - name: components-root
+        value: '{"dag":{"tasks":{"data-prep":{"cachingOptions":{},"componentRef":{"name":"comp-data-prep"},"taskInfo":{"name":"data-prep"}},"evaluate-model":{"cachingOptions":{},"componentRef":{"name":"comp-evaluate-model"},"dependentTasks":["train-model"],"taskInfo":{"name":"evaluate-model"}},"register-model":{"cachingOptions":{},"componentRef":{"name":"comp-register-model"},"dependentTasks":["train-model"],"taskInfo":{"name":"register-model"}},"train-model":{"cachingOptions":{},"componentRef":{"name":"comp-train-model"},"dependentTasks":["data-prep"],"taskInfo":{"name":"train-model"}}}}}'
+  entrypoint: entrypoint
+  podMetadata:
+    annotations:
+      pipelines.kubeflow.org/v2_component: 'true'
+    labels:
+      pipeline/runid: 1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e
+      pipelines.kubeflow.org/v2_component: 'true'
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccountName: pipeline-runner-pipelines-definition
+  templates:
+    - container:
+        args:
+          - '--type'
+          - CONTAINER
+          - '--pipeline_name'
+          - sleep-pipeline-template
+          - '--run_id'
+          - 1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e
+          - '--run_name'
+          - '{{workflow.name}}'
+          - '--run_display_name'
+          - demo-run
+          - '--dag_execution_id'
+          - '{{inputs.parameters.parent-dag-id}}'
+          - '--component'
+          - '{{inputs.parameters.component}}'
+          - '--task'
+          - '{{inputs.parameters.task}}'
+          - '--task_name'
+          - '{{inputs.parameters.task-name}}'
+          - '--container'
+          - '{{inputs.parameters.container}}'
+          - '--iteration_index'
+          - '{{inputs.parameters.iteration-index}}'
+          - '--cached_decision_path'
+          - '{{outputs.parameters.cached-decision.path}}'
+          - '--pod_spec_patch_path'
+          - '{{outputs.parameters.pod-spec-patch.path}}'
+          - '--condition_path'
+          - '{{outputs.parameters.condition.path}}'
+          - '--kubernetes_config'
+          - '{{inputs.parameters.kubernetes-config}}'
+          - '--http_proxy'
+          - ''
+          - '--https_proxy'
+          - ''
+          - '--no_proxy'
+          - ''
+          - '--ml_pipeline_server_address'
+          - ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local
+          - '--ml_pipeline_server_port'
+          - '8887'
+          - '--mlmd_server_address'
+          - ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local
+          - '--mlmd_server_port'
+          - '8080'
+          - '--ml_pipeline_tls_enabled'
+          - '--metadata_tls_enabled'
+          - '--ca_cert_path'
+          - /kfp/certs/ca.crt
+        command:
+          - driver
+        env:
+          - name: KFP_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: KFP_POD_UID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.uid
+        image: 'registry.redhat.io/rhoai/odh-ml-pipelines-driver-rhel9@sha256:93a4417623802a1683f9b49f45f84ecc1a7c395d39c0686af642635577607aaf'
+        name: ''
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /kfp/certs
+            name: custom-ca
+      inputs:
+        parameters:
+          - name: component
+          - name: task
+          - name: container
+          - name: task-name
+          - name: parent-dag-id
+          - default: '-1'
+            name: iteration-index
+          - default: ''
+            name: kubernetes-config
+      metadata:
+        annotations:
+          pipelines.kubeflow.org/v2_component: 'true'
+          sidecar.istio.io/inject: 'false'
+      name: system-container-driver
+      outputs:
+        parameters:
+          - name: pod-spec-patch
+            valueFrom:
+              default: ''
+              path: /tmp/outputs/pod-spec-patch
+          - default: 'false'
+            name: cached-decision
+            valueFrom:
+              default: 'false'
+              path: /tmp/outputs/cached-decision
+          - name: condition
+            valueFrom:
+              default: 'true'
+              path: /tmp/outputs/condition
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - configMap:
+            items:
+              - key: dsp-ca.crt
+                path: ca.crt
+            name: dsp-trusted-ca-pipelines-definition
+          name: custom-ca
+    - dag:
+        tasks:
+          - arguments:
+              parameters:
+                - name: pod-spec-patch
+                  value: '{{inputs.parameters.pod-spec-patch}}'
+            name: executor
+            template: system-container-impl
+            when: '{{inputs.parameters.cached-decision}} != true'
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+          - default: 'false'
+            name: cached-decision
+      metadata:
+        annotations:
+          pipelines.kubeflow.org/v2_component: 'true'
+          sidecar.istio.io/inject: 'false'
+      name: system-container-executor
+      outputs: {}
+    - container:
+        command:
+          - should-be-overridden-during-runtime
+        env:
+          - name: KFP_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: KFP_POD_UID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.uid
+        envFrom:
+          - configMapRef:
+              name: metadata-grpc-configmap
+              optional: true
+        image: gcr.io/ml-pipeline/should-be-overridden-during-runtime
+        name: ''
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /kfp-launcher
+            name: kfp-launcher
+          - mountPath: /gcs
+            name: gcs-scratch
+          - mountPath: /s3
+            name: s3-scratch
+          - mountPath: /minio
+            name: minio-scratch
+          - mountPath: /.local
+            name: dot-local-scratch
+          - mountPath: /.cache
+            name: dot-cache-scratch
+          - mountPath: /.config
+            name: dot-config-scratch
+          - mountPath: /kfp/certs
+            name: custom-ca
+      initContainers:
+        - args:
+            - '--copy'
+            - /kfp-launcher/launch
+          command:
+            - launcher-v2
+          image: 'registry.redhat.io/rhoai/odh-ml-pipelines-launcher-rhel9@sha256:623575e9f93aa3dda61589976344cbd328d50c7e4b773ca852d2ab4eed39f39f'
+          name: kfp-launcher
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - mountPath: /kfp-launcher
+              name: kfp-launcher
+      podSpecPatch: '{{inputs.parameters.pod-spec-patch}}'
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+      name: system-container-impl
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      metadata:
+        annotations:
+          pipelines.kubeflow.org/v2_component: 'true'
+          sidecar.istio.io/inject: 'false'
+      outputs: {}
+      volumes:
+        - emptyDir: {}
+          name: kfp-launcher
+        - emptyDir: {}
+          name: gcs-scratch
+        - emptyDir: {}
+          name: s3-scratch
+        - emptyDir: {}
+          name: minio-scratch
+        - emptyDir: {}
+          name: dot-local-scratch
+        - emptyDir: {}
+          name: dot-cache-scratch
+        - emptyDir: {}
+          name: dot-config-scratch
+        - configMap:
+            items:
+              - key: dsp-ca.crt
+                path: ca.crt
+            name: dsp-trusted-ca-pipelines-definition
+          name: custom-ca
+    - dag:
+        tasks:
+          - arguments:
+              parameters:
+                - name: component
+                  value: '{{workflow.parameters.components-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2}}'
+                - name: task
+                  value: '{"cachingOptions":{},"componentRef":{"name":"comp-data-prep"},"taskInfo":{"name":"data-prep"}}'
+                - name: container
+                  value: '{{workflow.parameters.implementations-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2}}'
+                - name: task-name
+                  value: data-prep
+                - name: parent-dag-id
+                  value: '{{inputs.parameters.parent-dag-id}}'
+            name: data-prep-driver
+            template: system-container-driver
+          - arguments:
+              parameters:
+                - name: pod-spec-patch
+                  value: '{{tasks.data-prep-driver.outputs.parameters.pod-spec-patch}}'
+                - default: 'false'
+                  name: cached-decision
+                  value: '{{tasks.data-prep-driver.outputs.parameters.cached-decision}}'
+            depends: data-prep-driver.Succeeded
+            name: data-prep
+            template: system-container-executor
+          - arguments:
+              parameters:
+                - name: component
+                  value: '{{workflow.parameters.components-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2}}'
+                - name: task
+                  value: '{"cachingOptions":{},"componentRef":{"name":"comp-evaluate-model"},"dependentTasks":["train-model"],"taskInfo":{"name":"evaluate-model"}}'
+                - name: container
+                  value: '{{workflow.parameters.implementations-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2}}'
+                - name: task-name
+                  value: evaluate-model
+                - name: parent-dag-id
+                  value: '{{inputs.parameters.parent-dag-id}}'
+            depends: train-model.Succeeded
+            name: evaluate-model-driver
+            template: system-container-driver
+          - arguments:
+              parameters:
+                - name: pod-spec-patch
+                  value: '{{tasks.evaluate-model-driver.outputs.parameters.pod-spec-patch}}'
+                - default: 'false'
+                  name: cached-decision
+                  value: '{{tasks.evaluate-model-driver.outputs.parameters.cached-decision}}'
+            depends: evaluate-model-driver.Succeeded
+            name: evaluate-model
+            template: system-container-executor
+          - arguments:
+              parameters:
+                - name: component
+                  value: '{{workflow.parameters.components-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2}}'
+                - name: task
+                  value: '{"cachingOptions":{},"componentRef":{"name":"comp-register-model"},"dependentTasks":["train-model"],"taskInfo":{"name":"register-model"}}'
+                - name: container
+                  value: '{{workflow.parameters.implementations-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2}}'
+                - name: task-name
+                  value: register-model
+                - name: parent-dag-id
+                  value: '{{inputs.parameters.parent-dag-id}}'
+            depends: train-model.Succeeded
+            name: register-model-driver
+            template: system-container-driver
+          - arguments:
+              parameters:
+                - name: pod-spec-patch
+                  value: '{{tasks.register-model-driver.outputs.parameters.pod-spec-patch}}'
+                - default: 'false'
+                  name: cached-decision
+                  value: '{{tasks.register-model-driver.outputs.parameters.cached-decision}}'
+            depends: register-model-driver.Succeeded
+            name: register-model
+            template: system-container-executor
+          - arguments:
+              parameters:
+                - name: component
+                  value: '{{workflow.parameters.components-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2}}'
+                - name: task
+                  value: '{"cachingOptions":{},"componentRef":{"name":"comp-train-model"},"dependentTasks":["data-prep"],"taskInfo":{"name":"train-model"}}'
+                - name: container
+                  value: '{{workflow.parameters.implementations-ef7658da9e7016b05fb4e39f8efd3fc113a022b5f3f0fe21abe71d6935c19ad2}}'
+                - name: task-name
+                  value: train-model
+                - name: parent-dag-id
+                  value: '{{inputs.parameters.parent-dag-id}}'
+            depends: data-prep.Succeeded
+            name: train-model-driver
+            template: system-container-driver
+          - arguments:
+              parameters:
+                - name: pod-spec-patch
+                  value: '{{tasks.train-model-driver.outputs.parameters.pod-spec-patch}}'
+                - default: 'false'
+                  name: cached-decision
+                  value: '{{tasks.train-model-driver.outputs.parameters.cached-decision}}'
+            depends: train-model-driver.Succeeded
+            name: train-model
+            template: system-container-executor
+      inputs:
+        parameters:
+          - name: parent-dag-id
+      metadata:
+        annotations:
+          pipelines.kubeflow.org/v2_component: 'true'
+          sidecar.istio.io/inject: 'false'
+      name: root
+      outputs: {}
+    - container:
+        args:
+          - '--type'
+          - '{{inputs.parameters.driver-type}}'
+          - '--pipeline_name'
+          - sleep-pipeline-template
+          - '--run_id'
+          - 1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e
+          - '--run_name'
+          - '{{workflow.name}}'
+          - '--run_display_name'
+          - demo-run
+          - '--dag_execution_id'
+          - '{{inputs.parameters.parent-dag-id}}'
+          - '--component'
+          - '{{inputs.parameters.component}}'
+          - '--task'
+          - '{{inputs.parameters.task}}'
+          - '--task_name'
+          - '{{inputs.parameters.task-name}}'
+          - '--runtime_config'
+          - '{{inputs.parameters.runtime-config}}'
+          - '--iteration_index'
+          - '{{inputs.parameters.iteration-index}}'
+          - '--execution_id_path'
+          - '{{outputs.parameters.execution-id.path}}'
+          - '--iteration_count_path'
+          - '{{outputs.parameters.iteration-count.path}}'
+          - '--condition_path'
+          - '{{outputs.parameters.condition.path}}'
+          - '--http_proxy'
+          - ''
+          - '--https_proxy'
+          - ''
+          - '--no_proxy'
+          - ''
+          - '--ml_pipeline_server_address'
+          - ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local
+          - '--ml_pipeline_server_port'
+          - '8887'
+          - '--mlmd_server_address'
+          - ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local
+          - '--mlmd_server_port'
+          - '8080'
+          - '--ml_pipeline_tls_enabled'
+          - '--metadata_tls_enabled'
+          - '--ca_cert_path'
+          - /kfp/certs/ca.crt
+        command:
+          - driver
+        image: 'registry.redhat.io/rhoai/odh-ml-pipelines-driver-rhel9@sha256:93a4417623802a1683f9b49f45f84ecc1a7c395d39c0686af642635577607aaf'
+        name: ''
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /kfp/certs
+            name: custom-ca
+      inputs:
+        parameters:
+          - name: component
+          - default: ''
+            name: runtime-config
+          - default: ''
+            name: task
+          - default: ''
+            name: task-name
+          - default: '0'
+            name: parent-dag-id
+          - default: '-1'
+            name: iteration-index
+          - default: DAG
+            name: driver-type
+      metadata:
+        annotations:
+          pipelines.kubeflow.org/v2_component: 'true'
+          sidecar.istio.io/inject: 'false'
+      name: system-dag-driver
+      outputs:
+        parameters:
+          - name: execution-id
+            valueFrom:
+              path: /tmp/outputs/execution-id
+          - name: iteration-count
+            valueFrom:
+              default: '0'
+              path: /tmp/outputs/iteration-count
+          - name: condition
+            valueFrom:
+              default: 'true'
+              path: /tmp/outputs/condition
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - configMap:
+            items:
+              - key: dsp-ca.crt
+                path: ca.crt
+            name: dsp-trusted-ca-pipelines-definition
+          name: custom-ca
+    - dag:
+        tasks:
+          - arguments:
+              parameters:
+                - name: component
+                  value: '{{workflow.parameters.components-root}}'
+                - name: runtime-config
+                  value: '{}'
+                - name: driver-type
+                  value: ROOT_DAG
+            name: root-driver
+            template: system-dag-driver
+          - arguments:
+              parameters:
+                - name: parent-dag-id
+                  value: '{{tasks.root-driver.outputs.parameters.execution-id}}'
+                - name: condition
+                  value: ''
+            depends: root-driver.Succeeded
+            name: root
+            template: root
+      inputs: {}
+      metadata:
+        annotations:
+          pipelines.kubeflow.org/v2_component: 'true'
+          sidecar.istio.io/inject: 'false'
+      name: entrypoint
+      outputs: {}
+status:
+  artifactGCStatus:
+    notSpecified: true
+  finishedAt: '2026-09-01T00:28:45Z'
+  progress: 9/9
+  nodes:
+    sleep-pipeline-template-4jc66-116034537:
+      outboundNodes:
+        - sleep-pipeline-template-4jc66-3323649212
+      finishedAt: '2026-09-01T00:28:45Z'
+      templateName: system-container-executor
+      boundaryID: sleep-pipeline-template-4jc66-2840261374
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","31","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/register-model/5ebfc741-9e3f-4fde-97f2-3b24ee30b8a3/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/register-model/5ebfc741-9e3f-4fde-97f2-3b24ee30b8a3/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+          - default: 'false'
+            name: cached-decision
+            value: 'false'
+      name: sleep-pipeline-template-4jc66.root.register-model
+      progress: 1/1
+      displayName: register-model
+      startedAt: '2026-09-01T00:28:20Z'
+      resourcesDuration:
+        cpu: 2
+        memory: 26
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: DAG
+      id: sleep-pipeline-template-4jc66-116034537
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-3323649212
+    sleep-pipeline-template-4jc66-2840261374:
+      outboundNodes:
+        - sleep-pipeline-template-4jc66-1517407414
+        - sleep-pipeline-template-4jc66-3323649212
+      finishedAt: '2026-09-01T00:28:45Z'
+      templateName: root
+      boundaryID: sleep-pipeline-template-4jc66
+      inputs:
+        parameters:
+          - name: parent-dag-id
+            value: '27'
+      name: sleep-pipeline-template-4jc66.root
+      progress: 8/8
+      displayName: root
+      startedAt: '2026-09-01T00:26:36Z'
+      resourcesDuration:
+        cpu: 8
+        memory: 118
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: DAG
+      id: sleep-pipeline-template-4jc66-2840261374
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-1012698565
+    sleep-pipeline-template-4jc66-1517407414:
+      finishedAt: '2026-09-01T00:28:36Z'
+      templateName: system-container-impl
+      boundaryID: sleep-pipeline-template-4jc66-2438793111
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","30","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/evaluate-model/c6b98406-e19d-46cc-a1bb-06c1246092a3/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/evaluate-model/c6b98406-e19d-46cc-a1bb-06c1246092a3/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+      name: sleep-pipeline-template-4jc66.root.evaluate-model.executor
+      progress: 1/1
+      displayName: executor
+      outputs:
+        exitCode: '0'
+      startedAt: '2026-09-01T00:28:20Z'
+      hostNodeName: ip-10-0-47-181.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 2
+        memory: 27
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-1517407414
+      phase: Succeeded
+    sleep-pipeline-template-4jc66-1238128304:
+      finishedAt: '2026-09-01T00:28:13Z'
+      templateName: system-container-driver
+      boundaryID: sleep-pipeline-template-4jc66-2840261374
+      inputs:
+        parameters:
+          - name: component
+            value: '{"executorLabel":"exec-data-prep"}'
+          - name: task
+            value: '{"cachingOptions":{},"componentRef":{"name":"comp-evaluate-model"},"dependentTasks":["train-model"],"taskInfo":{"name":"evaluate-model"}}'
+          - name: container
+            value: '{"args":["sleep 10"],"command":["sh","-c"],"image":"registry.redhat.io/ubi9/ubi-minimal:latest"}'
+          - name: task-name
+            value: evaluate-model
+          - name: parent-dag-id
+            value: '27'
+          - default: '-1'
+            name: iteration-index
+            value: '-1'
+          - default: ''
+            name: kubernetes-config
+            value: ''
+      name: sleep-pipeline-template-4jc66.root.evaluate-model-driver
+      progress: 1/1
+      displayName: evaluate-model-driver
+      outputs:
+        exitCode: '0'
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","30","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/evaluate-model/c6b98406-e19d-46cc-a1bb-06c1246092a3/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/evaluate-model/c6b98406-e19d-46cc-a1bb-06c1246092a3/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+            valueFrom:
+              default: ''
+              path: /tmp/outputs/pod-spec-patch
+          - default: 'false'
+            name: cached-decision
+            value: 'false'
+            valueFrom:
+              default: 'false'
+              path: /tmp/outputs/cached-decision
+          - name: condition
+            value: nil
+            valueFrom:
+              default: 'true'
+              path: /tmp/outputs/condition
+      startedAt: '2026-09-01T00:28:10Z'
+      hostNodeName: ip-10-0-47-181.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 0
+        memory: 2
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-1238128304
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-2438793111
+    sleep-pipeline-template-4jc66-2651974937:
+      finishedAt: '2026-09-01T00:28:00Z'
+      templateName: system-container-impl
+      boundaryID: sleep-pipeline-template-4jc66-183757682
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","29","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/train-model/2d1760fd-d5fb-411f-926d-3cc52e09c1cd/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/train-model/2d1760fd-d5fb-411f-926d-3cc52e09c1cd/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+      name: sleep-pipeline-template-4jc66.root.train-model.executor
+      progress: 1/1
+      displayName: executor
+      outputs:
+        exitCode: '0'
+      startedAt: '2026-09-01T00:27:40Z'
+      hostNodeName: ip-10-0-47-181.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 2
+        memory: 25
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-2651974937
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-1238128304
+        - sleep-pipeline-template-4jc66-2732071314
+    sleep-pipeline-template-4jc66-183757682:
+      outboundNodes:
+        - sleep-pipeline-template-4jc66-2651974937
+      finishedAt: '2026-09-01T00:28:10Z'
+      templateName: system-container-executor
+      boundaryID: sleep-pipeline-template-4jc66-2840261374
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","29","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/train-model/2d1760fd-d5fb-411f-926d-3cc52e09c1cd/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/train-model/2d1760fd-d5fb-411f-926d-3cc52e09c1cd/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+          - default: 'false'
+            name: cached-decision
+            value: 'false'
+      name: sleep-pipeline-template-4jc66.root.train-model
+      progress: 5/5
+      displayName: train-model
+      startedAt: '2026-09-01T00:27:40Z'
+      resourcesDuration:
+        cpu: 6
+        memory: 82
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: DAG
+      id: sleep-pipeline-template-4jc66-183757682
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-2651974937
+    sleep-pipeline-template-4jc66-2438793111:
+      outboundNodes:
+        - sleep-pipeline-template-4jc66-1517407414
+      finishedAt: '2026-09-01T00:28:45Z'
+      templateName: system-container-executor
+      boundaryID: sleep-pipeline-template-4jc66-2840261374
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","30","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/evaluate-model/c6b98406-e19d-46cc-a1bb-06c1246092a3/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/evaluate-model/c6b98406-e19d-46cc-a1bb-06c1246092a3/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+          - default: 'false'
+            name: cached-decision
+            value: 'false'
+      name: sleep-pipeline-template-4jc66.root.evaluate-model
+      progress: 1/1
+      displayName: evaluate-model
+      startedAt: '2026-09-01T00:28:20Z'
+      resourcesDuration:
+        cpu: 2
+        memory: 27
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: DAG
+      id: sleep-pipeline-template-4jc66-2438793111
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-1517407414
+    sleep-pipeline-template-4jc66-2732071314:
+      finishedAt: '2026-09-01T00:28:14Z'
+      templateName: system-container-driver
+      boundaryID: sleep-pipeline-template-4jc66-2840261374
+      inputs:
+        parameters:
+          - name: component
+            value: '{"executorLabel":"exec-data-prep"}'
+          - name: task
+            value: '{"cachingOptions":{},"componentRef":{"name":"comp-register-model"},"dependentTasks":["train-model"],"taskInfo":{"name":"register-model"}}'
+          - name: container
+            value: '{"args":["sleep 10"],"command":["sh","-c"],"image":"registry.redhat.io/ubi9/ubi-minimal:latest"}'
+          - name: task-name
+            value: register-model
+          - name: parent-dag-id
+            value: '27'
+          - default: '-1'
+            name: iteration-index
+            value: '-1'
+          - default: ''
+            name: kubernetes-config
+            value: ''
+      name: sleep-pipeline-template-4jc66.root.register-model-driver
+      progress: 1/1
+      displayName: register-model-driver
+      outputs:
+        exitCode: '0'
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","31","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/register-model/5ebfc741-9e3f-4fde-97f2-3b24ee30b8a3/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/register-model/5ebfc741-9e3f-4fde-97f2-3b24ee30b8a3/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+            valueFrom:
+              default: ''
+              path: /tmp/outputs/pod-spec-patch
+          - default: 'false'
+            name: cached-decision
+            value: 'false'
+            valueFrom:
+              default: 'false'
+              path: /tmp/outputs/cached-decision
+          - name: condition
+            value: nil
+            valueFrom:
+              default: 'true'
+              path: /tmp/outputs/condition
+      startedAt: '2026-09-01T00:28:10Z'
+      hostNodeName: ip-10-0-47-181.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 0
+        memory: 2
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-2732071314
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-116034537
+    sleep-pipeline-template-4jc66:
+      outboundNodes:
+        - sleep-pipeline-template-4jc66-1517407414
+        - sleep-pipeline-template-4jc66-3323649212
+      finishedAt: '2026-09-01T00:28:45Z'
+      templateName: entrypoint
+      name: sleep-pipeline-template-4jc66
+      progress: 9/9
+      displayName: sleep-pipeline-template-4jc66
+      startedAt: '2026-09-01T00:26:05Z'
+      resourcesDuration:
+        cpu: 8
+        memory: 127
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: DAG
+      id: sleep-pipeline-template-4jc66
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-1797304043
+    sleep-pipeline-template-4jc66-298888504:
+      outboundNodes:
+        - sleep-pipeline-template-4jc66-2483602403
+      finishedAt: '2026-09-01T00:27:20Z'
+      templateName: system-container-executor
+      boundaryID: sleep-pipeline-template-4jc66-2840261374
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","28","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/data-prep/1534b3d9-b623-43dc-af54-c1817d1b498c/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/data-prep/1534b3d9-b623-43dc-af54-c1817d1b498c/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+          - default: 'false'
+            name: cached-decision
+            value: 'false'
+      name: sleep-pipeline-template-4jc66.root.data-prep
+      progress: 7/7
+      displayName: data-prep
+      startedAt: '2026-09-01T00:26:46Z'
+      resourcesDuration:
+        cpu: 8
+        memory: 115
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: DAG
+      id: sleep-pipeline-template-4jc66-298888504
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-2483602403
+    sleep-pipeline-template-4jc66-3323649212:
+      finishedAt: '2026-09-01T00:28:36Z'
+      templateName: system-container-impl
+      boundaryID: sleep-pipeline-template-4jc66-116034537
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","31","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/register-model/5ebfc741-9e3f-4fde-97f2-3b24ee30b8a3/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/register-model/5ebfc741-9e3f-4fde-97f2-3b24ee30b8a3/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+      name: sleep-pipeline-template-4jc66.root.register-model.executor
+      progress: 1/1
+      displayName: executor
+      outputs:
+        exitCode: '0'
+      startedAt: '2026-09-01T00:28:20Z'
+      hostNodeName: ip-10-0-47-181.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 2
+        memory: 26
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-3323649212
+      phase: Succeeded
+    sleep-pipeline-template-4jc66-3195053591:
+      finishedAt: '2026-09-01T00:27:36Z'
+      templateName: system-container-driver
+      boundaryID: sleep-pipeline-template-4jc66-2840261374
+      inputs:
+        parameters:
+          - name: component
+            value: '{"executorLabel":"exec-data-prep"}'
+          - name: task
+            value: '{"cachingOptions":{},"componentRef":{"name":"comp-train-model"},"dependentTasks":["data-prep"],"taskInfo":{"name":"train-model"}}'
+          - name: container
+            value: '{"args":["sleep 10"],"command":["sh","-c"],"image":"registry.redhat.io/ubi9/ubi-minimal:latest"}'
+          - name: task-name
+            value: train-model
+          - name: parent-dag-id
+            value: '27'
+          - default: '-1'
+            name: iteration-index
+            value: '-1'
+          - default: ''
+            name: kubernetes-config
+            value: ''
+      name: sleep-pipeline-template-4jc66.root.train-model-driver
+      progress: 1/1
+      displayName: train-model-driver
+      outputs:
+        exitCode: '0'
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","29","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/train-model/2d1760fd-d5fb-411f-926d-3cc52e09c1cd/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/train-model/2d1760fd-d5fb-411f-926d-3cc52e09c1cd/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+            valueFrom:
+              default: ''
+              path: /tmp/outputs/pod-spec-patch
+          - default: 'false'
+            name: cached-decision
+            value: 'false'
+            valueFrom:
+              default: 'false'
+              path: /tmp/outputs/cached-decision
+          - name: condition
+            value: nil
+            valueFrom:
+              default: 'true'
+              path: /tmp/outputs/condition
+      startedAt: '2026-09-01T00:27:20Z'
+      hostNodeName: ip-10-0-47-181.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 0
+        memory: 6
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-3195053591
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-183757682
+    sleep-pipeline-template-4jc66-1797304043:
+      finishedAt: '2026-09-01T00:26:24Z'
+      templateName: system-dag-driver
+      boundaryID: sleep-pipeline-template-4jc66
+      inputs:
+        parameters:
+          - name: component
+            value: '{"dag":{"tasks":{"data-prep":{"cachingOptions":{},"componentRef":{"name":"comp-data-prep"},"taskInfo":{"name":"data-prep"}},"evaluate-model":{"cachingOptions":{},"componentRef":{"name":"comp-evaluate-model"},"dependentTasks":["train-model"],"taskInfo":{"name":"evaluate-model"}},"register-model":{"cachingOptions":{},"componentRef":{"name":"comp-register-model"},"dependentTasks":["train-model"],"taskInfo":{"name":"register-model"}},"train-model":{"cachingOptions":{},"componentRef":{"name":"comp-train-model"},"dependentTasks":["data-prep"],"taskInfo":{"name":"train-model"}}}}}'
+          - default: ''
+            name: runtime-config
+            value: '{}'
+          - default: ''
+            name: task
+            value: ''
+          - default: ''
+            name: task-name
+            value: ''
+          - default: '0'
+            name: parent-dag-id
+            value: '0'
+          - default: '-1'
+            name: iteration-index
+            value: '-1'
+          - default: DAG
+            name: driver-type
+            value: ROOT_DAG
+      name: sleep-pipeline-template-4jc66.root-driver
+      progress: 1/1
+      displayName: root-driver
+      outputs:
+        exitCode: '0'
+        parameters:
+          - name: execution-id
+            value: '27'
+            valueFrom:
+              path: /tmp/outputs/execution-id
+          - name: iteration-count
+            value: '0'
+            valueFrom:
+              default: '0'
+              path: /tmp/outputs/iteration-count
+          - name: condition
+            value: nil
+            valueFrom:
+              default: 'true'
+              path: /tmp/outputs/condition
+      startedAt: '2026-09-01T00:26:05Z'
+      hostNodeName: ip-10-0-46-27.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 0
+        memory: 9
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-1797304043
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-2840261374
+    sleep-pipeline-template-4jc66-2483602403:
+      finishedAt: '2026-09-01T00:27:10Z'
+      templateName: system-container-impl
+      boundaryID: sleep-pipeline-template-4jc66-298888504
+      inputs:
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","28","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/data-prep/1534b3d9-b623-43dc-af54-c1817d1b498c/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/data-prep/1534b3d9-b623-43dc-af54-c1817d1b498c/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+      name: sleep-pipeline-template-4jc66.root.data-prep.executor
+      progress: 1/1
+      displayName: executor
+      outputs:
+        exitCode: '0'
+      startedAt: '2026-09-01T00:26:46Z'
+      hostNodeName: ip-10-0-46-27.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 2
+        memory: 27
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-2483602403
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-3195053591
+    sleep-pipeline-template-4jc66-1012698565:
+      finishedAt: '2026-09-01T00:26:40Z'
+      templateName: system-container-driver
+      boundaryID: sleep-pipeline-template-4jc66-2840261374
+      inputs:
+        parameters:
+          - name: component
+            value: '{"executorLabel":"exec-data-prep"}'
+          - name: task
+            value: '{"cachingOptions":{},"componentRef":{"name":"comp-data-prep"},"taskInfo":{"name":"data-prep"}}'
+          - name: container
+            value: '{"args":["sleep 10"],"command":["sh","-c"],"image":"registry.redhat.io/ubi9/ubi-minimal:latest"}'
+          - name: task-name
+            value: data-prep
+          - name: parent-dag-id
+            value: '27'
+          - default: '-1'
+            name: iteration-index
+            value: '-1'
+          - default: ''
+            name: kubernetes-config
+            value: ''
+      name: sleep-pipeline-template-4jc66.root.data-prep-driver
+      progress: 1/1
+      displayName: data-prep-driver
+      outputs:
+        exitCode: '0'
+        parameters:
+          - name: pod-spec-patch
+            value: '{"containers":[{"name":"main","image":"registry.redhat.io/ubi9/ubi-minimal:latest","command":["/kfp-launcher/launch","--pipeline_name","sleep-pipeline-template","--run_id","1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e","--execution_id","28","--executor_input","{\"inputs\":{}, \"outputs\":{\"artifacts\":{\"executor-logs\":{\"artifacts\":[{\"name\":\"executor-logs\", \"type\":{\"schemaTitle\":\"system.Artifact\"}, \"uri\":\"s3://pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/data-prep/1534b3d9-b623-43dc-af54-c1817d1b498c/executor-logs\"}]}}, \"outputFile\":\"/s3/pipelines/sleep-pipeline-template/1cd166b7-2ffb-4ed5-850b-0bbd7d45a21e/data-prep/1534b3d9-b623-43dc-af54-c1817d1b498c/output_metadata.json\"}}","--component_spec","{\"executorLabel\":\"exec-data-prep\"}","--pod_name","$(KFP_POD_NAME)","--pod_uid","$(KFP_POD_UID)","--ml_pipeline_server_address","ds-pipeline-pipelines-definition.pipeline-demo.svc.cluster.local","--ml_pipeline_server_port","8887","--mlmd_server_address","ds-pipeline-metadata-grpc-pipelines-definition.pipeline-demo.svc.cluster.local","--mlmd_server_port","8080","--publish_logs","true","--ml_pipeline_tls_enabled","--metadata_tls_enabled","--ca_cert_path","/kfp/certs/ca.crt","--publish_logs","true","--"],"args":["sh","-c","sleep 10"],"resources":{}}]}'
+            valueFrom:
+              default: ''
+              path: /tmp/outputs/pod-spec-patch
+          - default: 'false'
+            name: cached-decision
+            value: 'false'
+            valueFrom:
+              default: 'false'
+              path: /tmp/outputs/cached-decision
+          - name: condition
+            value: nil
+            valueFrom:
+              default: 'true'
+              path: /tmp/outputs/condition
+      startedAt: '2026-09-01T00:26:36Z'
+      hostNodeName: ip-10-0-46-27.us-east-2.compute.internal
+      resourcesDuration:
+        cpu: 0
+        memory: 3
+      templateScope: local/sleep-pipeline-template-4jc66
+      type: Pod
+      id: sleep-pipeline-template-4jc66-1012698565
+      phase: Succeeded
+      children:
+        - sleep-pipeline-template-4jc66-298888504
+  startedAt: '2026-09-01T00:26:05Z'
+  artifactRepositoryRef:
+    artifactRepository:
+      archiveLogs: false
+      s3:
+        accessKeySecret:
+          key: AWS_ACCESS_KEY_ID
+          name: pipelines-s3-credentials
+        bucket: pipelines
+        endpoint: 'http://minio.pipeline-demo.svc.cluster.local:9000'
+        insecure: false
+        secretKeySecret:
+          key: AWS_SECRET_ACCESS_KEY
+          name: pipelines-s3-credentials
+    default: true
+  conditions:
+    - status: 'False'
+      type: PodRunning
+    - status: 'True'
+      type: Completed
+  resourcesDuration:
+    cpu: 8
+    memory: 127
+  phase: Succeeded
+  taskResultsCompletionStatus:
+    sleep-pipeline-template-4jc66-1517407414: true
+    sleep-pipeline-template-4jc66-1238128304: true
+    sleep-pipeline-template-4jc66-2651974937: true
+    sleep-pipeline-template-4jc66-2732071314: true
+    sleep-pipeline-template-4jc66-3323649212: true
+    sleep-pipeline-template-4jc66-3195053591: true
+    sleep-pipeline-template-4jc66-1797304043: true
+    sleep-pipeline-template-4jc66-2483602403: true
+    sleep-pipeline-template-4jc66-1012698565: true
