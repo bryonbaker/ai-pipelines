@@ -1,0 +1,95 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: remote-pipeline-run-001
+  namespace: pipeline-demo
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        opendatahub.io/workbenches: "true"
+    spec:
+      serviceAccountName: kfp-run-trigger
+      restartPolicy: Never
+      containers:
+        - name: trigger-run
+          image: registry.redhat.io/openshift4/ose-cli:latest
+          env:
+            - name: PIPELINE_NAME
+              value: remote-pipeline
+            - name: PIPELINE_VERSION_NAME
+              value: remote-pipeline
+            - name: RUN_DISPLAY_NAME
+              value: remote-pipeline-run-001
+            - name: DS_PIPELINE_API
+              value: https://ds-pipeline-pipelines-definition.pipeline-demo.svc:8888
+          volumeMounts:
+            - name: dsp-ca
+              mountPath: /dsp-certs
+              readOnly: true
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              NAMESPACE="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+              CA_CERT="/dsp-certs/ca.crt"
+
+              echo "Waiting for PipelineVersion ${PIPELINE_VERSION_NAME} to be reconciled..."
+              for i in $(seq 1 30); do
+                LABEL="$(
+                  oc get pipelineversions.pipelines.kubeflow.org "${PIPELINE_VERSION_NAME}" \
+                    -n "${NAMESPACE}" \
+                    -o jsonpath='{.metadata.labels.pipelines\.kubeflow\.org/pipeline-id}' 2>/dev/null
+                )"
+                if [ -n "${LABEL}" ]; then
+                  echo "PipelineVersion reconciled (pipeline-id: ${LABEL})"
+                  break
+                fi
+                echo "  attempt ${i}/30 — waiting for controller to set pipeline-id label"
+                sleep 5
+              done
+
+              if [ -z "${LABEL}" ]; then
+                echo "ERROR: PipelineVersion was not reconciled within 150s"
+                exit 1
+              fi
+
+              PIPELINE_ID="$(
+                oc get pipelines.pipelines.kubeflow.org "${PIPELINE_NAME}" \
+                  -n "${NAMESPACE}" \
+                  -o jsonpath='{.metadata.uid}'
+              )"
+              echo "Pipeline UID: ${PIPELINE_ID}"
+
+              PIPELINE_VERSION_ID="$(
+                oc get pipelineversions.pipelines.kubeflow.org "${PIPELINE_VERSION_NAME}" \
+                  -n "${NAMESPACE}" \
+                  -o jsonpath='{.metadata.uid}'
+              )"
+              echo "PipelineVersion UID: ${PIPELINE_VERSION_ID}"
+
+              echo "Creating run: ${RUN_DISPLAY_NAME}"
+              curl --fail --silent --show-error \
+                --cacert "${CA_CERT}" \
+                -X POST \
+                "${DS_PIPELINE_API}/apis/v2beta1/runs" \
+                -H "Content-Type: application/json" \
+                -d "{
+                  \"display_name\": \"${RUN_DISPLAY_NAME}\",
+                  \"pipeline_version_reference\": {
+                    \"pipeline_id\": \"${PIPELINE_ID}\",
+                    \"pipeline_version_id\": \"${PIPELINE_VERSION_ID}\"
+                  },
+                  \"runtime_config\": {}
+                }"
+              echo ""
+              echo "Run created successfully"
+      volumes:
+        - name: dsp-ca
+          configMap:
+            name: openshift-service-ca.crt
+            items:
+              - key: service-ca.crt
+                path: ca.crt

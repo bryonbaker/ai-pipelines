@@ -1,0 +1,92 @@
+apiVersion: pipelines.kubeflow.org/v2beta1
+kind: PipelineVersion
+metadata:
+  name: remote-pipeline
+  namespace: pipeline-demo
+  labels:
+    pipelines.kubeflow.org/pipeline: remote-pipeline
+spec:
+  displayName: remote-pipeline
+  pipelineName: remote-pipeline
+  pipelineSpec:
+    components:
+      comp-data-prep:
+        executorLabel: exec-data-prep
+      comp-evaluate-model:
+        executorLabel: exec-evaluate-model
+      comp-register-model:
+        executorLabel: exec-register-model
+      comp-train-model:
+        executorLabel: exec-train-model
+    deploymentSpec:
+      executors:
+        exec-data-prep:
+          container:
+            args:
+              - sleep 10
+            command:
+              - sh
+              - '-c'
+            image: 'registry.redhat.io/ubi9/ubi-minimal:latest'
+        exec-evaluate-model:
+          container:
+            args:
+              - sleep 10
+            command:
+              - sh
+              - '-c'
+            image: 'registry.redhat.io/ubi9/ubi-minimal:latest'
+        exec-register-model:
+          container:
+            args:
+              - sleep 10
+            command:
+              - sh
+              - '-c'
+            image: 'registry.redhat.io/ubi9/ubi-minimal:latest'
+        exec-train-model:
+          container:
+            args:
+              - sleep 10
+            command:
+              - sh
+              - '-c'
+            image: 'registry.redhat.io/ubi9/ubi-minimal:latest'
+    pipelineInfo:
+      description: Simple four-step pipeline template
+      name: remote-pipeline
+    root:
+      dag:
+        tasks:
+          data-prep:
+            cachingOptions: {}
+            componentRef:
+              name: comp-data-prep
+            taskInfo:
+              name: data-prep
+          evaluate-model:
+            cachingOptions: {}
+            componentRef:
+              name: comp-evaluate-model
+            dependentTasks:
+              - train-model
+            taskInfo:
+              name: evaluate-model
+          register-model:
+            cachingOptions: {}
+            componentRef:
+              name: comp-register-model
+            dependentTasks:
+              - train-model
+            taskInfo:
+              name: register-model
+          train-model:
+            cachingOptions: {}
+            componentRef:
+              name: comp-train-model
+            dependentTasks:
+              - data-prep
+            taskInfo:
+              name: train-model
+    schemaVersion: 2.1.0
+    sdkVersion: kfp-2.14.4
