@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: remote-pipeline-run-001
-  namespace: pipeline-demo
+  name: JOB_NAME_PLACEHOLDER
+  namespace: pipeline-demo-1
 spec:
   backoffLimit: 3
   ttlSecondsAfterFinished: 86400
@@ -22,9 +22,9 @@ spec:
             - name: PIPELINE_VERSION_NAME
               value: remote-pipeline
             - name: RUN_DISPLAY_NAME
-              value: remote-pipeline-run-001
+              value: RUN_DISPLAY_NAME_PLACEHOLDER
             - name: DS_PIPELINE_API
-              value: https://ds-pipeline-pipelines-definition.pipeline-demo.svc:8888
+              value: https://ds-pipeline-dspa.pipeline-demo-1.svc:8888 # value: https://ds-pipeline-pipelines-definition.pipeline-demo-1.svc:8888
           volumeMounts:
             - name: dsp-ca
               mountPath: /dsp-certs
