@@ -32,9 +32,7 @@ pod template includes `opendatahub.io/workbenches: "true"` to pass this policy.
 Apply the RBAC, Pipeline, and PipelineVersion (order matters — Pipeline before PipelineVersion):
 
 ```bash
-oc apply -f pipeline/rbac.yaml
-oc apply -f pipeline/remote-pipeline.yaml
-oc apply -f pipeline/remote-pipeline-pv.yaml
+oc apply -k pipeline/base/
 ```
 
 Verify the controller has reconciled the PipelineVersion (look for the `pipeline-id` label):
@@ -56,16 +54,18 @@ oc get pipelines.pipelines.kubeflow.org,pipelineversions.pipelines.kubeflow.org 
 
 ## Step 2: Trigger a Run
 
+Edit the run `kustomization.yaml` file to contain the run name you want (`<your_job_name>`).
+
 Apply the run-trigger Job:
 
 ```bash
-oc apply -f runs/run-001.yaml
+oc apply -k run/base/
 ```
 
 Watch the Job complete:
 
 ```bash
-oc wait --for=condition=complete job/remote-pipeline-run-001 \
+oc wait --for=condition=complete job/<your_job_name> \
   -n pipeline-demo --timeout=180s
 ```
 
@@ -96,7 +96,7 @@ Delete everything in reverse order so the demo can be run again from scratch.
 Delete the run-trigger Job:
 
 ```bash
-oc delete job remote-pipeline-run-001 -n pipeline-demo --ignore-not-found
+oc delete -k run/base/ --ignore-not-found
 ```
 
 Delete any Argo Workflows created by the run:
@@ -111,18 +111,10 @@ Delete the PipelineVersion (must go before the Pipeline — it has an ownerRefer
 oc delete pipelineversions.pipelines.kubeflow.org remote-pipeline -n pipeline-demo --ignore-not-found
 ```
 
-Delete the Pipeline:
+Delete the Pipeline and RBAC Resources:
 
 ```bash
-oc delete pipelines.pipelines.kubeflow.org remote-pipeline -n pipeline-demo --ignore-not-found
-```
-
-Delete the RBAC resources:
-
-```bash
-oc delete rolebinding kfp-run-trigger -n pipeline-demo --ignore-not-found
-oc delete role kfp-run-trigger -n pipeline-demo --ignore-not-found
-oc delete sa kfp-run-trigger -n pipeline-demo --ignore-not-found
+oc delete -k pipelines/base/ --ignore-not-found
 ```
 
 Verify everything is gone:
