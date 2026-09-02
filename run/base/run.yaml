@@ -16,6 +16,10 @@ spec:
         - name: trigger-run
           image: registry.redhat.io/openshift4/ose-cli:latest
           env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             - name: PIPELINE_NAME
               value: remote-pipeline
             - name: PIPELINE_VERSION_NAME
@@ -23,7 +27,7 @@ spec:
             - name: RUN_DISPLAY_NAME
               value: RUN_DISPLAY_NAME_PLACEHOLDER
             - name: DS_PIPELINE_API
-              value: https://ds-pipeline-dspa.pipeline-demo.svc:8888
+              value: https://ds-pipeline-dspa.$(NAMESPACE).svc:8888
           volumeMounts:
             - name: dsp-ca
               mountPath: /dsp-certs
