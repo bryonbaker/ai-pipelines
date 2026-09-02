@@ -1,0 +1,109 @@
+# Run-only RHACM/OpenShift GitOps deployment for ai-pipelines.
+#
+# Target-cluster prerequisites:
+# - A healthy DSPA named pipelines-definition in pipeline-demo.
+# - The kfp-run-trigger ServiceAccount and RBAC.
+# - The remote-pipeline Pipeline and PipelineVersion resources.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: acm-placement
+  namespace: openshift-gitops
+data:
+  apiVersion: cluster.open-cluster-management.io/v1beta1
+  kind: placementdecisions
+  statusListKey: decisions
+  matchKey: clusterName
+---
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSetBinding
+metadata:
+  name: default
+  namespace: openshift-gitops
+spec:
+  clusterSet: default
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: ai-pipelines-target
+  namespace: openshift-gitops
+spec:
+  clusterSets:
+    - default
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+            - key: name
+              operator: In
+              values:
+                - ai-cluster-vmwsn
+---
+apiVersion: apps.open-cluster-management.io/v1beta1
+kind: GitOpsCluster
+metadata:
+  name: ai-pipelines-gitops
+  namespace: openshift-gitops
+spec:
+  argoServer:
+    cluster: local-cluster
+    argoNamespace: openshift-gitops
+  placementRef:
+    apiVersion: cluster.open-cluster-management.io/v1beta1
+    kind: Placement
+    name: ai-pipelines-target
+    namespace: openshift-gitops
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ai-pipelines
+  namespace: openshift-gitops
+spec:
+  sourceRepos:
+    - https://github.com/bryonbaker/ai-pipelines.git
+  destinations:
+    - name: '*'
+      server: '*'
+      namespace: pipeline-demo
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ai-pipelines-run
+  namespace: openshift-gitops
+spec:
+  generators:
+    - clusterDecisionResource:
+        configMapRef: acm-placement
+        labelSelector:
+          matchLabels:
+            cluster.open-cluster-management.io/placement: ai-pipelines-target
+        requeueAfterSeconds: 30
+  template:
+    metadata:
+      name: 'ai-pipelines-run-{{name}}'
+    spec:
+      project: ai-pipelines
+      source:
+        repoURL: https://github.com/bryonbaker/ai-pipelines.git
+        targetRevision: main
+        # Kustomize reads the changing JOB_NAME value from Git.
+        path: run/base
+      destination:
+        name: '{{name}}'
+        namespace: pipeline-demo
+      syncPolicy:
+        automated:
+          # Remove the previous trigger Job when JOB_NAME changes.
+          prune: true
+          # Do not recreate the same Job after a manual deletion.
+          selfHeal: false
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true

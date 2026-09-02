@@ -10,6 +10,119 @@ All commands run against the `pipeline-demo` namespace.
 - Logged into the OpenShift cluster (`oc whoami` succeeds)
 - The DSPA `pipelines-definition` is deployed and healthy in `pipeline-demo`
 
+## Deploy the Run Application with RHACM
+
+The run-only manifest creates the RHACM Placement, registers the selected
+managed cluster with OpenShift GitOps, and creates an ApplicationSet for
+`run/base`. Kustomize reads `JOB_NAME` directly from
+`run/base/kustomization.yaml`.
+
+The Pipeline, PipelineVersion, `kfp-run-trigger` ServiceAccount and RBAC must
+already exist on the managed cluster.
+
+### 1. Apply the RHACM manifest
+
+Log in to the RHACM hub and apply the run-only manifest:
+
+```bash
+oc whoami --show-server
+oc apply -f acm/ai-pipelines-rhacm-run.yaml
+```
+
+Confirm that RHACM selected the managed cluster:
+
+```bash
+oc get placementdecision \
+  -n openshift-gitops \
+  -l cluster.open-cluster-management.io/placement=ai-pipelines-target \
+  -o jsonpath='{range .items[*].status.decisions[*]}{.clusterName}{"\n"}{end}'
+```
+
+Expected output:
+
+```text
+ai-cluster-vmwsn
+```
+
+Confirm that the ApplicationSet generated the run Application:
+
+```bash
+oc get applicationsets.argoproj.io ai-pipelines-run \
+  -n openshift-gitops
+
+oc get applications.argoproj.io ai-pipelines-run-ai-cluster-vmwsn \
+  -n openshift-gitops \
+  -o custom-columns='NAME:.metadata.name,PATH:.spec.source.path,SYNC:.status.sync.status,HEALTH:.status.health.status'
+```
+
+### 2. Force ApplicationSet regeneration
+
+Use this when the PlacementDecision exists but the generated Application has
+not appeared:
+
+```bash
+oc annotate applicationsets.argoproj.io ai-pipelines-run \
+  -n openshift-gitops \
+  argocd.argoproj.io/application-set-refresh=true \
+  --overwrite
+```
+
+### 3. Force a Git refresh and sync
+
+Run this on the RHACM hub after changing and pushing `JOB_NAME`:
+
+```bash
+APP=ai-pipelines-run-ai-cluster-vmwsn
+
+oc annotate applications.argoproj.io "$APP" \
+  -n openshift-gitops \
+  argocd.argoproj.io/refresh=hard \
+  --overwrite
+
+oc patch applications.argoproj.io "$APP" \
+  -n openshift-gitops \
+  --type=merge \
+  -p '{"operation":{"sync":{"revision":"main","prune":true}}}'
+```
+
+Watch the sync and press `Ctrl+C` when it is `Synced` and `Healthy`:
+
+```bash
+oc get applications.argoproj.io "$APP" \
+  -n openshift-gitops \
+  -w
+```
+
+Show the Git revision and rendered Job name:
+
+```bash
+oc get applications.argoproj.io "$APP" \
+  -n openshift-gitops \
+  -o jsonpath='Revision={.status.sync.revision}{"\n"}{range .status.resources[?(@.kind=="Job")]}Job={.name} Status={.status} Health={.health.status}{"\n"}{end}'
+```
+
+### 4. Verify the run on the managed cluster
+
+Switch to the `ai-cluster-vmwsn` context, then substitute the current
+checked-in Job name:
+
+```bash
+oc config use-context <ai-cluster-vmwsn-context>
+oc whoami --show-server
+
+oc get jobs -n pipeline-demo \
+  --sort-by=.metadata.creationTimestamp
+
+oc logs -f job/<current-job-name> \
+  -n pipeline-demo
+
+oc get workflows.argoproj.io \
+  -n pipeline-demo \
+  -o custom-columns='NAME:.metadata.name,PHASE:.status.phase,STARTED:.status.startedAt'
+```
+
+The successful trigger Job ends with `Run created successfully`.
+
 ## Known Behavior
 
 When PipelineVersions are created via `oc apply` (rather than the KFP upload API),
