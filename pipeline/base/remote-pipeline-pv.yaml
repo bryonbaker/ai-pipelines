@@ -2,7 +2,6 @@ apiVersion: pipelines.kubeflow.org/v2beta1
 kind: PipelineVersion
 metadata:
   name: remote-pipeline
-  namespace: pipeline-demo-1
   labels:
     pipelines.kubeflow.org/pipeline: remote-pipeline
 spec:
