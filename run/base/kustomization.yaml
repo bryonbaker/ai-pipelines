@@ -9,7 +9,7 @@ resources:
 configMapGenerator:
   - name: parameters
     literals:
-      - JOB_NAME=remote-pipeline-run-002
+      - JOB_NAME=remote-pipeline-run-003
 
 replacements:
   # Set the Job name
