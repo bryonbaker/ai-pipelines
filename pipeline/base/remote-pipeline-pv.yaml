@@ -22,7 +22,7 @@ spec:
         exec-data-prep:
           container:
             args:
-              - sleep 10
+              - sleep 5
             command:
               - sh
               - '-c'
@@ -30,7 +30,7 @@ spec:
         exec-evaluate-model:
           container:
             args:
-              - sleep 10
+              - sleep 5
             command:
               - sh
               - '-c'
